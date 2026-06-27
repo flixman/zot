@@ -119,7 +119,10 @@ func TestInitCosignAndNotationDirs(t *testing.T) {
 
 		trustPolicyDoc := struct {
 			TrustPolicies []struct {
-				TrustStores []string `json:"trustStores"`
+				TrustStores           []string `json:"trustStores"`
+				SignatureVerification struct {
+					VerifyTimestamp string `json:"verifyTimestamp"`
+				} `json:"signatureVerification"`
 			} `json:"trustPolicies"`
 		}{}
 
@@ -129,6 +132,7 @@ func TestInitCosignAndNotationDirs(t *testing.T) {
 		So(trustPolicyDoc.TrustPolicies[0].TrustStores, ShouldContain, "ca:default")
 		So(trustPolicyDoc.TrustPolicies[0].TrustStores, ShouldContain, "signingAuthority:default")
 		So(trustPolicyDoc.TrustPolicies[0].TrustStores, ShouldContain, "tsa:default")
+		So(trustPolicyDoc.TrustPolicies[0].SignatureVerification.VerifyTimestamp, ShouldEqual, "afterCertExpiry")
 	})
 
 	Convey("UploadCertificate - notationDir is not set", t, func() {
