@@ -1033,6 +1033,19 @@ func TestConfig(t *testing.T) {
 			So(authConfig.IsBearerAuthEnabled(), ShouldBeTrue)
 		})
 
+		Convey("Test ShouldAdvertiseBearerChallenge with LDAP coexistence", func() {
+			authConfig := &config.AuthConfig{
+				Bearer: &config.BearerConfig{
+					Realm:   "test-realm",
+					Service: "test-service",
+				},
+				LDAP: &config.LDAPConfig{},
+			}
+
+			So(authConfig.ShouldAdvertiseBearerChallenge(), ShouldBeTrue)
+			So(authConfig.CanAuthenticateWithBasicCredentials(), ShouldBeTrue)
+		})
+
 		Convey("Test IsTraditionalBearerAuthEnabled()", func() {
 			// Test with nil AuthConfig
 			var authConfig *config.AuthConfig = nil

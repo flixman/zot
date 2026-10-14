@@ -166,8 +166,11 @@ func (a *AuthConfig) HasBearerChallengeConfig() bool {
 
 // ShouldAdvertiseBearerChallenge checks if clients should receive Bearer
 // challenges for one of the enabled token-consuming auth paths.
+// HTTP Basic credential backends (htpasswd/LDAP/API keys) can coexist with a
+// bearer realm/service challenge, so advertise bearer challenges when the
+// challenge is complete and at least one authenticated access path is enabled.
 func (a *AuthConfig) ShouldAdvertiseBearerChallenge() bool {
-	return a.HasBearerChallengeConfig() && (a.IsBearerAuthEnabled() || a.IsAPIKeyEnabled())
+	return a.HasBearerChallengeConfig() && (a.IsBearerAuthEnabled() || a.CanAuthenticateWithBasicCredentials())
 }
 
 // ShouldInitializeBearerAuth checks if the API layer needs BearerAuth.
