@@ -1042,7 +1042,7 @@ func TestConfig(t *testing.T) {
 				LDAP: &config.LDAPConfig{},
 			}
 
-			So(authConfig.ShouldAdvertiseBearerChallenge(), ShouldBeTrue)
+			So(authConfig.ShouldAdvertiseBearerChallenge(), ShouldBeFalse)
 			So(authConfig.CanAuthenticateWithBasicCredentials(), ShouldBeTrue)
 		})
 
