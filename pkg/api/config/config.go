@@ -164,13 +164,22 @@ func (a *AuthConfig) HasBearerChallengeConfig() bool {
 	return a != nil && a.Bearer != nil && a.Bearer.Realm != "" && a.Bearer.Service != ""
 }
 
-// ShouldAdvertiseBearerChallenge checks if clients should receive Bearer
+// ShouldAdvertiseBearerChallenge checks if clients should receive bearer
 // challenges for one of the enabled token-consuming auth paths.
-// HTTP Basic credential backends (htpasswd/LDAP/API keys) can coexist with a
-// bearer realm/service challenge, so advertise bearer challenges when the
-// challenge is complete and at least one authenticated access path is enabled.
+// Direct username/password backends (htpasswd/LDAP) must not suppress the
+// challenge type that matches the credential flow the client is already using.
+// Docker/Podman expect a Basic challenge in that case, while API-key backed
+// token exchange still uses a bearer challenge when the realm/service is valid.
 func (a *AuthConfig) ShouldAdvertiseBearerChallenge() bool {
-	return a.HasBearerChallengeConfig() && (a.IsBearerAuthEnabled() || a.CanAuthenticateWithBasicCredentials())
+	if !a.HasBearerChallengeConfig() {
+		return false
+	}
+
+	if a.IsHtpasswdAuthEnabled() || a.IsLdapAuthEnabled() {
+		return false
+	}
+
+	return a.IsBearerAuthEnabled() || a.IsAPIKeyEnabled()
 }
 
 // ShouldInitializeBearerAuth checks if the API layer needs BearerAuth.
